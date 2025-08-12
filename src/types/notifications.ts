@@ -29,3 +29,14 @@ export interface NotificationProps {
   hasTimeout?: boolean;
   noIcon?: boolean;
 }
+
+export interface NotificationsProps {
+  // Set whether notifications should be displayed as toasts/popover:
+  toaster?: boolean;
+
+  // Set whether the notifications container should be positioned relative to the viewport (rather than its DOM position). Use only with toaster=true.
+  onViewport?: boolean;
+
+  // If we want the page to react to notifications
+  isRelative?: boolean;
+}

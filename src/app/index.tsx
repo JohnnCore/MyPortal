@@ -6,9 +6,7 @@ import { Routes } from "../routes";
 
 const App = () => {
   const dispatch = useAppDispatch();
-  const notifications = useAppSelector(
-    (state) => state.notificationsSlice.notifications
-  );
+  const { notifications } = useAppSelector((state) => state.notificationsSlice);
 
   const addaNotification = () => {
     dispatch(
@@ -27,6 +25,9 @@ const App = () => {
   return (
     <>
       <Routes />
+      <MainNavigation />
+      <GlobalNotifications />
+      <WrapperModal />
     </>
   );
 };

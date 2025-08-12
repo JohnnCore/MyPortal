@@ -1,4 +1,4 @@
-import type { Issue } from "./../../../types/board";
+import type { Issue } from "../../../types/board";
 
 export interface CardBoardProps {
   item: Issue;

@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useRoutes } from "react-router";
 
-import BoardPage from "../pages/Board/BoardPage";
+import BoardPage from "../pages/board/BoardPage";
 
 export const Routes = () => {
   return useRoutes([

@@ -1,4 +1,4 @@
-import { CardBoard } from "./card/CardBoard";
+import { CardBoard } from "./Card/CardBoard";
 
 import { issuesStatues, issues } from "../../mocks";
 

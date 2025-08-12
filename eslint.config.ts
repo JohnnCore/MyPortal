@@ -35,6 +35,7 @@ export default [
       ...reactPlugin.configs.flat.recommended.rules,
 
       "react-hooks/rules-of-hooks": "error",
+      "@typescript-eslint/no-explicit-any": "error",
       "react-hooks/exhaustive-deps": "warn",
       "react-refresh/only-export-components": "warn",
       "react/react-in-jsx-scope": "off",

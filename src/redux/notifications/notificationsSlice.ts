@@ -1,21 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { NotificationProps } from "../../types/notifications";
 
-export type ReduxNotification = {
-  id?: string;
-  message: string;
-  /** richMessages support any message contain rich text as an optional type */
-  messages?: string[];
-  props: Pick<NotificationProps, "type"> & Partial<NotificationProps>;
-};
-
-export type NotificationsInitialState = {
-  notifications: Required<ReduxNotification>[];
-};
-
-const initialState: NotificationsInitialState = {
-  notifications: [],
-};
+import { initialState } from "./initialState";
+import type { ReduxNotification } from "./notificationsSlice.type";
 
 const notificationsSlice = createSlice({
   name: "notifications",
@@ -27,12 +13,8 @@ const notificationsSlice = createSlice({
         state.notifications.find(
           (notification) => notification.id === payload.id
         )
-      ) {
-        console.log("teste");
+      )
         return;
-      }
-      console.log("teste");
-
       state.notifications.push({
         id: payload.id !== undefined ? payload.id : crypto.randomUUID(),
         message: payload.message,
