@@ -1,6 +1,6 @@
 import { CardBoardProps } from "./CardBoard.types";
 
-export const CardBoard = ({ item }: CardBoardProps) => {
+const CardBoard = ({ item }: CardBoardProps) => {
   return (
     <div
       key={item.id}
@@ -43,8 +43,5 @@ export const CardBoard = ({ item }: CardBoardProps) => {
     </div>
   );
 };
-<<<<<<< HEAD
 
 export default CardBoard;
-=======
->>>>>>> 977ad7976838c1ef38708349ec7b8306b14b900b

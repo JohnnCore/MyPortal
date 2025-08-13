@@ -1,20 +1,12 @@
-<<<<<<< HEAD
-import { CardBoard } from "./Card/CardBoard";
-=======
-import { CardBoard } from "./card/CardBoard";
-
->>>>>>> 977ad7976838c1ef38708349ec7b8306b14b900b
+import CardBoard from "./Card/CardBoard";
 import { issuesStatues, issues } from "../../mocks";
 
 const Board = () => {
   return (
     <div className="p-6 min-h-screen">
-    <div className="p-6 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
         Work Items Board
       </h1>
-      <div className="flex flex-col md:flex-row gap-4 min-h-screen">
-        {issuesStatues.map((status) => (
       <div className="flex flex-col md:flex-row gap-4 min-h-screen">
         {issuesStatues.map((status) => (
           <div
@@ -26,10 +18,8 @@ const Board = () => {
             </h2>
             <div className="space-y-4">
               {issues
-              {issues
                 .filter((item) => item.status === status)
                 .map((item) => (
-                  <CardBoard key={item.id} item={item} />
                   <CardBoard key={item.id} item={item} />
                 ))}
             </div>
