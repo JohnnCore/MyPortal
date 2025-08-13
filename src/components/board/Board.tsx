@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { CardBoard } from "./Card/CardBoard";
+=======
+import { CardBoard } from "./card/CardBoard";
 
+>>>>>>> 977ad7976838c1ef38708349ec7b8306b14b900b
 import { issuesStatues, issues } from "../../mocks";
 
 const Board = () => {
@@ -12,7 +16,7 @@ const Board = () => {
         {issuesStatues.map((status) => (
           <div
             key={status}
-            className="flex-1 min-w-[250px] p-2 rounded-md bg-gray-200 dark:bg-gray-700"
+            className="flex-1 min-w-[250px] p-2 rounded-md bg-gray-200 dark:bg-gray-950"
           >
             <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
               {status}

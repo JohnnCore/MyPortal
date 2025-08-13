@@ -3,10 +3,12 @@ import { initMessageListener, withReduxStateSync } from "redux-state-sync";
 import { combineReducers, configureStore, Middleware } from "@reduxjs/toolkit";
 
 import notificationsSlice from "./notifications/notificationsSlice";
+import modalSlice from "./modal/modalSlice";
 
 const rootReducer = combineReducers({
   // Add your reducers here
   notificationsSlice: notificationsSlice,
+  modalSlice: modalSlice,
 });
 
 export const setupStore = (preloadedState?: RootState) => {
