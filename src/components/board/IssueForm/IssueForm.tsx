@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import { RootState } from "../../../redux/store";
 
 export const IssueForm = () => {
   const dispatch = useAppDispatch();
-  const { notifications } = useAppSelector((state) => state.notificationsSlice);
+  const { modal } = useAppSelector((state: RootState) => state.modalSlice);
 };
