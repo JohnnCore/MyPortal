@@ -1,4 +1,4 @@
-import { ModalDesktopSize } from "../../types/modals";
+import { ModalDesktopSize } from "../../components/common/Modal/Modal.types";
 import { ModalContent, ModalSliceInitialState } from "./modalSlice.types";
 
 export const defaultDiscardChildren = (

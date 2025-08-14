@@ -1,4 +1,4 @@
-import type { NotificationProps } from "../../types/notifications";
+import type { NotificationProps } from "../../components/common/Notification/Notification.types";
 
 export type ReduxNotification = {
   id?: string;

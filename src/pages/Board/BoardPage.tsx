@@ -1,11 +1,12 @@
 import Board from "../../components/board/Board";
+import PageContainer from "../../components/common/PageContainer/PageContainer";
 
 export default function BoardPage() {
   return (
-    <main id="#main" className="min-h-[100vh]">
+    <PageContainer>
       <div className="">
         <Board />
       </div>
-    </main>
+    </PageContainer>
   );
 }

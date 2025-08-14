@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ModalDesktopSizeType } from "../../types/modals";
+import { ModalDesktopSizeType } from "../../components/common/Modal/Modal.types";
 
 export interface Buttons {
   /**

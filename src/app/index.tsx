@@ -25,9 +25,9 @@ const App = () => {
   return (
     <>
       <Routes />
-      <MainNavigation />
+      {/* <MainNavigation />
       <GlobalNotifications />
-      <WrapperModal />
+      <WrapperModal /> */}
     </>
   );
 };
