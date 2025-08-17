@@ -17,12 +17,10 @@ export interface ConfirmationModalContentProps extends PropsWithChildren<{}> {
 }
 
 // 1️⃣ Define the runtime constant object first
-export const ModalDesktopSize = {
-  SMALL: "small",
-  LARGE: "large",
-  EXTRA_LARGE: "extra_large",
-} as const;
+
 
 // 2️⃣ Derive the type from the object
 export type ModalDesktopSizeType =
-  (typeof ModalDesktopSize)[keyof typeof ModalDesktopSize];
+  | "small"
+  | "large"
+  | "extra_large";

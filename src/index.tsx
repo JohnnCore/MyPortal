@@ -4,6 +4,9 @@ import { createRoot } from "react-dom/client";
 
 import App from "./app";
 
+import Input from "./components/common/Input/Input";
+import Button from "./components/common/Button/Button";
+
 import "./index.css";
 
 import store from "./redux/store";
@@ -15,6 +18,8 @@ createRoot(document.getElementById("root")!).render(
     <Provider store={store}>
       <BrowserRouter>
         <App />
+        <Input />
+        <Button size="small">ola</Button>
       </BrowserRouter>
     </Provider>
   </StrictMode>

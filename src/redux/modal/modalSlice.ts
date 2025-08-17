@@ -33,6 +33,7 @@ export const modalSlice = createSlice({
         /**
          * Opens a modal with the provided configuration.
          * This action updates the modal state with the provided payload.
+         * Returning a New Object (Immutably):
          *
          * @param {ModalSliceInitialState} state - The current state of the modal.
          * @param {OpenModalProps} payload - The new state to replace the current modal state.
@@ -48,6 +49,7 @@ export const modalSlice = createSlice({
         /**
          * Opens a discard modal with custom handlers for "Continue" and "Close" actions.
          * This action updates the modal state to display a discard confirmation dialog.
+         * Mutable State Change (Direct Mutation):
          *
          * The content of the modal includes a default message asking the user if they want to discard their changes.
          * If a different message or content is desired, a custom `children` can be provided in the payload.
@@ -60,9 +62,9 @@ export const modalSlice = createSlice({
         openDiscardModal: (state, { payload }: { payload: DiscardModalProps }) => {
             const {
                 children = defaultDiscardChildren,
+                title,
                 onContinueHandler,
                 onCloseHandler,
-                title,
                 onCloseLabel,
                 onContinueLabel,
             } = payload;

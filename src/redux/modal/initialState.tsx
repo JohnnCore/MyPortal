@@ -1,4 +1,3 @@
-import { ModalDesktopSize } from "../../components/common/Modal/Modal.types";
 import { ModalContent, ModalSliceInitialState } from "./modalSlice.types";
 
 export const defaultDiscardChildren = (
@@ -23,6 +22,6 @@ export const initialState: ModalSliceInitialState = {
   hideYOverflow: undefined,
   closeableOnOverlay: false,
   customZIndex: undefined,
-  size: ModalDesktopSize.EXTRA_LARGE,
+  size: "extra_large",
   isLoading: false,
 };
