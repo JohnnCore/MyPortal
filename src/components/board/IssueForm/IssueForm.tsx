@@ -1,7 +1,14 @@
-import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
-import { RootState } from "../../../redux/store";
+import { useAppDispatch } from "../../../hooks/reduxHooks";
+import { addNotification, removeNotification } from "../../../redux/notifications/notificationsSlice";
 
-export const IssueForm = () => {
+const IssueForm = () => {
   const dispatch = useAppDispatch();
-  const { modal } = useAppSelector((state: RootState) => state.modalSlice);
+
+
+  return(
+    
+  )
+
 };
+
+export default IssueForm;
