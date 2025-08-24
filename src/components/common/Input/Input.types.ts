@@ -11,6 +11,9 @@ export type InputType =
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
     type?: InputType; // e.g., "text", "password", "email"   
     label?: string; // Label for the input field
+    error?: string | undefined;
+    touched?: boolean;
+
     // placeholder?: string; // Placeholder text for the input     
     // value?: string; // Current value of the input
     // onChange?: (event: ChangeEvent<HTMLInputElement>) => void; // Change event handler

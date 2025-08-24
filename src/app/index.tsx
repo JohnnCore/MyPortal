@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
 import { addNotification } from "../redux/notifications/notificationsSlice";
 
 import { Routes } from "../routes";
+import WrapperModal from "../components/common/Modal/WrapperModal/WrapperModal";
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -27,7 +28,8 @@ const App = () => {
       <Routes />
       {/* <MainNavigation />
       <GlobalNotifications />
-      <WrapperModal /> */}
+      */}
+      <WrapperModal />
     </>
   );
 };

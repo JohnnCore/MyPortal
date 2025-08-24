@@ -40,7 +40,7 @@ export const modalSlice = createSlice({
          * @returns {ModalSliceInitialState} The new state for the modal.
          */
         openModal: (state, { payload }: { payload: OpenModalProps }) => ({
-            ...state, // IDK
+            // ...state, // IDK
             isModalOpen: true,
             ...payload,
             //   title: payload.title || "Modal
