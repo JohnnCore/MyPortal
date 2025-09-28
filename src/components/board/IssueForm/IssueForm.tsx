@@ -1,212 +1,193 @@
-// IssueForm.tsx (Middle Layer - Updated)
-import { useRef, useState, useCallback } from "react";
-import IssueFormInput from "./IssueFormInput";
-import { IssueFormValues, IssueData, ImperativeFormHandle } from "./types";
-import { validationFunctions } from "./utils";
+// IssueForm.tsx (Fixed version)
+import React from "react";
+import { forwardRef, useCallback, useImperativeHandle } from "react";
+
+import { SubmitHandler, useForm } from "react-hook-form";
+
+import IssueFormInput from "./IssueFormInput/IssueFormInput";
 import { useAppDispatch } from "../../../hooks/reduxHooks";
-import { openDiscardModal, openModal } from "../../../redux/modal/modalSlice";
+import { IssueFormData } from "./IssueForm.types";
+import {
+  openDiscardModal,
+  openModal,
+  updateAPIMutationLoadingState,
+} from "../../../redux/modal/modalSlice";
+import { Issue, IssueResponse } from "../../../types/board";
 
 interface IssueFormProps {
-  existingIssue: IssueData | null;
-  onSubmit: (values: IssueFormValues) => Promise<void>;
-  onReset: () => void;
-  isSubmitting: boolean;
+  existingIssue: IssueResponse | null;
+  onFormSubmit: (values: Issue) => Promise<void>;
+  onCancel: () => void;
 }
 
-const IssueForm = ({
-  existingIssue,
-  onSubmit,
-  onReset,
-  isSubmitting,
-}: IssueFormProps) => {
-  const formRef = useRef<ImperativeFormHandle>(null);
-  const [formErrors, setFormErrors] = useState<string[]>([]);
-  const dispatch = useAppDispatch();
+interface IssueFormRef {
+  triggerCancel: (e?: React.MouseEvent) => void;
+}
 
-  const defaultFormValues: IssueFormValues = {
-    title: "",
-    status: "To Do",
-    description: "",
-    type: "Task",
-    priority: "Low",
-    assignee: "",
-    dueDate: "",
-    tags: [],
-    confirmSubmission: false,
-  };
+const IssueForm = forwardRef<IssueFormRef, IssueFormProps>(
+  ({ existingIssue, onFormSubmit, onCancel }, ref) => {
+    const dispatch = useAppDispatch();
 
-  const initialValues: IssueFormValues = existingIssue
-    ? {
-        title: existingIssue.title,
-        type: existingIssue.type,
-        status: existingIssue.status,
-        description: existingIssue.description,
-        priority: existingIssue.priority,
-        assignee: existingIssue.assignee,
-        dueDate: existingIssue.dueDate,
-        tags: existingIssue.tags,
+    const {
+      register,
+      handleSubmit,
+      reset,
+      // clearErrors, // Add this
+      formState: { errors, isSubmitting, isDirty },
+      control,
+      watch,
+    } = useForm<IssueFormData>({
+      defaultValues: existingIssue || {
+        title: "",
+        projectId: 0,
+        reporter: 0,
+        statusId: 0,
+        description: "",
+        typeId: 0,
+        priorityId: 0,
+        assignee: 0,
+        tags: [],
         confirmSubmission: false,
-      }
-    : defaultFormValues;
+      },
+      mode: "onBlur",
+    });
 
-  const handleSubmitClick = useCallback(() => {
-    console.log("handleSubmitClick called");
+    const showConfirmationModal = useCallback(
+      (data: IssueFormData) => {
+        dispatch(
+          openModal({
+            title: "Confirm Submission",
+            content: {
+              title: "Confirm Issue Submission",
+              children: (
+                <div className="text-gray-600">
+                  <p className="mb-4">
+                    Are you sure you want to submit this issue?
+                  </p>
+                  <div className="bg-gray-50 p-4 rounded-lg border space-y-2">
+                    <p>
+                      <strong>Title:</strong> {data.title}
+                    </p>
+                    <p>
+                      <strong>Priority:</strong> {data.priorityId}
+                    </p>
+                    <p>
+                      <strong>Type:</strong> {data.typeId}
+                    </p>
+                    <p>
+                      <strong>Assignee:</strong> {data.assignee}
+                    </p>
+                  </div>
+                </div>
+              ),
+              buttons: {
+                primary: {
+                  text: isSubmitting ? "Submitting..." : "Confirm Submit",
+                  handler: async () => {
+                    dispatch(
+                      updateAPIMutationLoadingState({ isLoading: true })
+                    );
+                    await onFormSubmit(data);
+                  },
+                },
+                secondary: { text: "Cancel" },
+              },
+            },
+            size: "large",
+          })
+        );
+      },
+      [dispatch, onFormSubmit, isSubmitting]
+    );
 
-    if (!formRef.current) return;
+    const handleCancelClick = useCallback(
+      (e?: React.MouseEvent) => {
+        // Prevent default behavior and stop propagation
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
 
-    const formValues = formRef.current.values;
+        // Clear any existing errors first
+        // clearErrors();
 
-    dispatch(
-      openModal({
-        title: "Confirm Submission",
-        content: {
-          title: "Confirm Issue Submission",
-          children: (
-            <div className="text-gray-600">
-              <p className="mb-4">
-                Are you sure you want to submit this issue?
-              </p>
-              <div className="bg-gray-50 p-4 rounded-lg border space-y-2">
-                <p>
-                  <strong className="text-gray-800">Title:</strong>{" "}
-                  {formValues.title}
-                </p>
-                <p>
-                  <strong className="text-gray-800">Priority:</strong>{" "}
-                  {formValues.priority}
-                </p>
-                <p>
-                  <strong className="text-gray-800">Type:</strong>{" "}
-                  {formValues.type}
-                </p>
-                <p>
-                  <strong className="text-gray-800">Assignee:</strong>{" "}
-                  {formValues.assignee}
-                </p>
-                <p>
-                  <strong className="text-gray-800">Due Date:</strong>{" "}
-                  {formValues.dueDate}
+        if (!isDirty) {
+          onCancel();
+          return;
+        }
+
+        dispatch(
+          openDiscardModal({
+            title: "Discard Changes",
+            children: (
+              <div className="text-gray-600">
+                <p>Are you sure you want to cancel and lose your changes?</p>
+                <p className="mt-2 text-sm text-gray-500">
+                  All unsaved data will be permanently lost.
                 </p>
               </div>
-            </div>
-          ),
-          buttons: {
-            primary: {
-              text: isSubmitting ? "Submitting..." : "Confirm Submit",
-              handler: async () => {
-                try {
-                  if (formRef.current) {
-                    await onSubmit(formRef.current.values);
-                  }
-                } catch (error) {
-                  console.error("Error submitting form:", error);
-                }
-              },
+            ),
+            onContinueHandler: () => {
+              reset();
+              onCancel();
             },
-            secondary: {
-              text: "Cancel",
-              handler: () => {
-                // Just close modal, keep form data
-              },
-            },
-          },
-        },
-        size: "large",
-      })
-    );
-  }, [dispatch, onSubmit, isSubmitting]);
-
-  const handleSubmit = useCallback(async () => {
-    if (formRef.current) {
-      const { errors, isValid } = await formRef.current.handleSubmit();
-
-      if (isValid) {
-        setFormErrors([]);
-        handleSubmitClick();
-      } else {
-        // Display form validation errors WITHOUT resetting the form
-        const errorStrings = Object.values(errors ?? {}).filter(
-          (error): error is string => !!error && typeof error === "string"
+            onCloseLabel: "Keep Editing",
+            onContinueLabel: "Discard Changes",
+          })
         );
-        setFormErrors(errorStrings);
-      }
-    }
-  }, [handleSubmitClick]);
-
-  const handleCancel = useCallback(() => {
-    dispatch(
-      openDiscardModal({
-        title: "Discard Changes",
-        children: (
-          <div className="text-gray-600">
-            <p>Are you sure you want to cancel and lose your changes?</p>
-            <p className="mt-2 text-sm text-gray-500">
-              All unsaved data will be permanently lost.
-            </p>
-          </div>
-        ),
-        onContinueHandler: () => {
-          if (formRef.current) {
-            formRef.current.handleReset();
-          }
-          setFormErrors([]);
-          onReset();
-        },
-        onCloseHandler: () => {
-          // Just close modal, keep form data
-        },
-        onContinueLabel: "Discard Changes",
-        onCloseLabel: "Keep Editing",
-      })
+      },
+      [dispatch, reset, onCancel, isDirty]
     );
-  }, [dispatch, onReset]);
 
-  return (
-    <div className="space-y-6">
-      {/* Display Form Errors */}
-      {formErrors.length > 0 && (
-        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-          <h4 className="font-medium mb-2">Please fix the following errors:</h4>
-          <ul className="list-disc list-inside space-y-1">
-            {formErrors.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </ul>
+    useImperativeHandle(ref, () => ({
+      triggerCancel: (e?: React.MouseEvent) => {
+        handleCancelClick(e as React.MouseEvent);
+      },
+    }));
+
+    return (
+      <form className="space-y-6">
+        <IssueFormInput
+          register={register}
+          control={control}
+          errors={errors}
+          watch={watch}
+          isDisabled={isSubmitting}
+        />
+
+        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleCancelClick(e);
+            }}
+            disabled={isSubmitting}
+            className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit(
+              showConfirmationModal as SubmitHandler<IssueFormData>
+            )}
+            disabled={isSubmitting}
+            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {isSubmitting
+              ? "Submitting..."
+              : existingIssue
+              ? "Update Issue"
+              : "Create Issue"}
+          </button>
         </div>
-      )}
+      </form>
+    );
+  }
+);
 
-      <IssueFormInput
-        ref={formRef}
-        initialValues={initialValues}
-        validationFunctions={validationFunctions}
-        isDisabled={isSubmitting}
-        onFormSubmit={handleSubmitClick}
-      />
-
-      <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={handleCancel}
-          disabled={isSubmitting}
-          className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isSubmitting
-            ? "Submitting..."
-            : existingIssue
-            ? "Update Issue"
-            : "Create Issue"}
-        </button>
-      </div>
-    </div>
-  );
-};
+IssueForm.displayName = "IssueForm";
 
 export default IssueForm;

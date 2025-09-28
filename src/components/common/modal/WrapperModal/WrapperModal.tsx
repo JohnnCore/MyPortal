@@ -42,32 +42,36 @@ const WrapperModal = () => {
     dispatch(closeModal());
   };
 
-  return isModalOpen ? (
-    <Modal
-      title={modalTittle}
-      isOpen={isModalOpen}
-      onClose={handleCloseModal}
-      size={size}
-      customZIndex={customZIndex}
-      hideYOverflow={hideYOverflow}
-      closeableOnOverlay={closeableOnOverlay}
-    >
-      <div className="flex flex-col flex-1 gap-6 justify-between">
-        <div className="flex flex-col gap-2">
-          <h3 className="font-semibold text-lg text-neutral-grey-800">
-            {title}
-          </h3>
-          <div>{children}</div>
+  return (
+    isModalOpen && (
+      <Modal
+        title={modalTittle}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        size={size}
+        customZIndex={customZIndex}
+        hideYOverflow={hideYOverflow}
+        closeableOnOverlay={closeableOnOverlay}
+      >
+        {isLoading && <h1>Loding</h1>}
+
+        <div className="flex flex-col flex-1 gap-6 justify-between">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-semibold text-lg text-neutral-grey-800">
+              {title}
+            </h3>
+            <div>{children}</div>
+          </div>
+          <Button onClick={handleConfirmModal} size="small">
+            {primaryText}
+          </Button>
+          <Button onClick={handleCloseModal} size="small" variant="secondary">
+            {secondaryText}
+          </Button>
         </div>
-        <Button onClick={handleConfirmModal} size="small">
-          {primaryText}
-        </Button>
-        <Button onClick={handleCloseModal} size="small" variant="secondary">
-          {secondaryText}
-        </Button>
-      </div>
-    </Modal>
-  ) : null;
+      </Modal>
+    )
+  );
 };
 
 export default WrapperModal;

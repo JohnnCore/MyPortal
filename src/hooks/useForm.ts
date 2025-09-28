@@ -65,6 +65,7 @@ export type UseFormProps<Values extends FormValues> = {
     ValidationFunction<Values> | undefined
   >;
   enableReinitialize?: boolean;
+  onFormSubmit: UseFormOnSubmit<Values>;
 };
 
 const stateInitializer = <Values extends FormValues>(
@@ -158,7 +159,7 @@ const formReducer = <Values extends FormValues = FormValues>(
 const useForm = <Values extends FormValues = FormValues>(
   props: UseFormProps<Values>,
 ) => {
-  const { initialValues, validationFunctions, enableReinitialize = false } = props;
+  const { initialValues, validationFunctions, enableReinitialize = false, onFormSubmit } = props;
 
   const initialState = useMemo<FormState<Values>>(() => {
     const { isValid } = validateFormValues(initialValues, validationFunctions);
@@ -234,6 +235,7 @@ const useForm = <Values extends FormValues = FormValues>(
         payload: { isSubmitting: true, isValid },
       });
 
+      await onFormSubmit(state.values);
       return { isValid, errors };
     } catch (error) {
       console.error('Form submission error:', error);
@@ -244,7 +246,7 @@ const useForm = <Values extends FormValues = FormValues>(
         payload: { isSubmitting: false },
       });
     }
-  }, [state.values, validationFunctions]);
+  }, [state.values, validationFunctions, onFormSubmit]);
 
   const handleReset = useCallback(() => {
     dispatch({

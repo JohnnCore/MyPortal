@@ -1,14 +1,16 @@
-import { CardBoardProps } from "./CardBoard.types";
+import { BoardCardProps } from "./BoardCard.types";
+import { memo } from "react";
 
-const CardBoard = ({ item }: CardBoardProps) => {
+const BoardCard = memo(({ item, onClick }: BoardCardProps) => {
   return (
     <div
       key={item.id}
-      className="p-4 bg-white rounded-lg shadow-sm cursor-grab hover:shadow-md transition-shadow duration-200 dark:bg-gray-800 dark:text-white"
+      className="p-4 bg-white rounded-lg shadow-sm cursor-grab hover:shadow-md transition-shadow duration-200 dark:bg-card-background dark:text-white"
       draggable
+      onClick={() => onClick?.(item)}
     >
       <h3 className="text-lg font-bold">
-        {item.type === "Task" ? (
+        {item.typeId === 1 ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="inline-block w-5 h-5 mr-2 text-blue-500"
@@ -35,13 +37,15 @@ const CardBoard = ({ item }: CardBoardProps) => {
             />
           </svg>
         )}
-        {item.summary}
+        {item.title}
       </h3>
       <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
         {item.description}
       </p>
     </div>
   );
-};
+});
 
-export default CardBoard;
+BoardCard.displayName = "CardBoard";
+
+export default BoardCard;

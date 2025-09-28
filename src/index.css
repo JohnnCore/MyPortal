@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@theme {
+  --color-body-background: #1f1f21;
+  --color-column-background: #18191a;
+  --color-card-background: #242528;
+  --color-modal-background-color: #2b2c2f;
+  --color-dropdown-hover-background-color: #36373b;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -8,7 +16,7 @@
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   /* background-color: #1f1f21; #18191A */
-  background-color: var(--color-gray-800);
+  background-color: var(--color-body-background);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -60,8 +68,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
-
-.background-modal {
-  background-color: #2b2c2f;
 }

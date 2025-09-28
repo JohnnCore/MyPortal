@@ -5,10 +5,14 @@ import { combineReducers, configureStore, Middleware } from "@reduxjs/toolkit";
 import notificationsSlice from "./notifications/notificationsSlice";
 import modalSlice from "./modal/modalSlice";
 
+import { apiSlice } from "./api/apiSlice";
+
 const rootReducer = combineReducers({
   // Add your reducers here
   notificationsSlice: notificationsSlice,
   modalSlice: modalSlice,
+  [apiSlice.reducerPath]: apiSlice.reducer,
+
 });
 
 export const setupStore = (preloadedState?: RootState) => {
@@ -16,7 +20,9 @@ export const setupStore = (preloadedState?: RootState) => {
     preloadedState,
     reducer: withReduxStateSync(rootReducer),
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({ serializableCheck: false }).concat(),
+      getDefaultMiddleware({ serializableCheck: false }).concat(
+        apiSlice.middleware as Middleware
+      ),
     /** We should only have access to redux dev tools on local & development env */
     devTools:
       import.meta.env.VITE_APP_DEPLOY_ENV === "local" ||

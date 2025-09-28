@@ -24,6 +24,7 @@ export const modalSlice = createSlice({
             state,
             { payload }: { payload: { isLoading: boolean } }
         ) => {
+
             return {
                 ...state,
                 isLoading: payload.isLoading,

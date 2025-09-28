@@ -1,7 +1,7 @@
 // types.ts
 import type {
   Comment,
-  Issue,
+  IssueResponse,
   IssueStatus,
   Project,
   User,
@@ -49,49 +49,54 @@ export const projects: Project[] = [
   { id: 102, name: "Mobile App", key: "MA", lead: 3 },
 ];
 
-export const issues: Issue[] = [
+export const issues: IssueResponse[] = [
   {
     id: 1001,
+    title: "Update homepage hero section",
     projectId: 101,
     key: "WR-1",
-    type: "Task",
-    summary: "Update homepage hero section",
+    typeId: 1,
     description:
       "Replace old hero image with new branding image, update CTA text.",
-    status: "In Progress",
-    priority: "High",
+    statusId: 3,
+    priorityId: 2,
     assignee: 3,
     reporter: 1,
-    created: "2025-08-01T10:15:00Z",
-    updated: "2025-08-03T14:20:00Z",
+    createdAt: "2025-08-01T10:15:00Z",
+    updatedAt: "2025-08-03T14:20:00Z",
+    tags: ["frontend", "backend"]
   },
   {
     id: 1002,
+    title: "Implement dark mode",
     projectId: 101,
     key: "WR-2",
-    type: "Bug",
-    summary: "Implement dark mode",
+    typeId: 1,
     description: "Allow users to toggle between light and dark themes.",
-    status: "To Do",
-    priority: "Medium",
+    statusId: 1,
+    priorityId: 1,
     assignee: 2,
     reporter: 3,
-    created: "2025-08-02T09:00:00Z",
-    updated: "2025-08-02T09:00:00Z",
+    createdAt: "2025-08-02T09:00:00Z",
+    updatedAt: "2025-08-02T09:00:00Z",
+    tags: ["frontend", "backend"]
+
   },
   {
     id: 1003,
+    title: "Fix login crash on iOS",
     projectId: 102,
     key: "MA-1",
-    type: "Task",
-    summary: "Fix login crash on iOS",
+    typeId: 3,
     description: "App crashes when user logs in with Google account.",
-    status: "In Review",
-    priority: "Critical",
+    statusId: 3,
+    priorityId: 1,
     assignee: 2,
     reporter: 4,
-    created: "2025-08-05T11:00:00Z",
-    updated: "2025-08-06T08:30:00Z",
+    createdAt: "2025-08-05T11:00:00Z",
+    updatedAt: "2025-08-06T08:30:00Z",
+    tags: ["frontend", "backend"]
+
   },
 ];
 

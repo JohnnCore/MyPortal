@@ -13,6 +13,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement | HTMLT
     label?: string; // Label for the input field
     error?: string | undefined;
     touched?: boolean;
+    labelClasses?: string
 
     // placeholder?: string; // Placeholder text for the input     
     // value?: string; // Current value of the input

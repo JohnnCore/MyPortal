@@ -92,7 +92,7 @@ export const Modal = ({
       >
         <div
           className={cn(
-            "background-modal pb-4 pt-8 px-4 sm:py-6 sm:px-10 md:rounded-lg md:mx-8 relative flex flex-col w-[100vw] h-[100%] md:max-h-[90%] md:h-auto transition-all",
+            "bg-modal-background-color pb-4 pt-8 px-4 sm:py-6 sm:px-10 md:rounded-lg md:mx-8 relative flex flex-col w-[100vw] h-[100%] md:max-h-[90%] md:h-auto transition-all",
             {
               "md:max-w-[600px]": size === "small",
               "md:max-w-[800px]": size === "large",

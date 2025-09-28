@@ -1,9 +1,9 @@
-import { IssueFormValues } from "./types";
+import { IssueFormData } from "./IssueForm.types";
 import { ValidationFunction } from "../../../hooks/useForm";
 
 export const validationFunctions: Record<
-    keyof IssueFormValues,
-    ValidationFunction<IssueFormValues> | undefined
+    keyof IssueFormData,
+    ValidationFunction<IssueFormData> | undefined
 > = {
     title: (value: any) => {
         if (!value || typeof value !== 'string' || !value.trim()) {

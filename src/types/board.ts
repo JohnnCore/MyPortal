@@ -28,19 +28,28 @@ export type IssueStatus =
 export type Priority = "Low" | "Medium" | "High" | "Critical";
 export type IssueType = "Task" | "Bug" | "Story" | "Epic";
 
-export interface Issue {
+export interface MetaResponse {
   id: number;
+  name: string;
+}
+
+export interface Issue {
   projectId: number;
-  type: IssueType;
-  key: string;
-  summary: string;
+  title: string;
+  typeId: number;
   description: string;
-  status: IssueStatus;
-  priority: Priority;
+  statusId: number;
+  priorityId: number;
+  tags: string[]
   assignee: number; // userId
   reporter: number; // userId
-  created: string; // ISO date
-  updated: string; // ISO date
+}
+
+export interface IssueResponse extends Issue {
+  id: number;
+  key: string;
+  createdAt: string; // ISO date
+  updatedAt: string; // ISO date
 }
 
 export interface Comment {
@@ -49,4 +58,15 @@ export interface Comment {
   author: number; // userId
   text: string;
   created: string; // ISO date
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface SingleResponse<T> {
+  data: T;
 }
