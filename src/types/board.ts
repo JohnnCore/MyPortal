@@ -40,7 +40,7 @@ export interface Issue {
   description: string;
   statusId: number;
   priorityId: number;
-  tags: string[]
+  tags: string[];
   assignee: number; // userId
   reporter: number; // userId
 }

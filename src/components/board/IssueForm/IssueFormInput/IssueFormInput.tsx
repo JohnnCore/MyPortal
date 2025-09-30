@@ -65,6 +65,9 @@ const IssueFormInput = ({
 
   const selectedTags = watch("tags", []);
 
+  const priority = watch("priorityId");
+  console.log(priority);
+
   const handleTagToggle = useCallback(
     (tag: string, onChange: (val: string[]) => void) => {
       const newTags = selectedTags.includes(tag)
@@ -74,8 +77,6 @@ const IssueFormInput = ({
     },
     [selectedTags]
   );
-
-  console.log(typesData);
 
   return isLoading ? (
     <div>Loading...</div>
@@ -93,7 +94,7 @@ const IssueFormInput = ({
           disabled={isDisabled}
           autoFocus
           label="Issue Title *"
-          labelClasses="block text-sm font-medium text-red-400 mb-1"
+          labelClasses="block text-sm font-medium mb-1"
           {...register("title", {
             required: "Title is required",
             validate: validationFunctions.title,
@@ -148,9 +149,10 @@ const IssueFormInput = ({
         </label>
         {isDetailMode ? (
           <EditableField value={watch("description")} isDisabled={isDisabled}>
-            <textarea
+            <Input
               id="description"
-              rows={4}
+              type="textarea"
+              label="Description *"
               placeholder="Describe the issue in detail"
               disabled={isDisabled}
               {...register("description", {
@@ -161,9 +163,8 @@ const IssueFormInput = ({
             />
           </EditableField>
         ) : (
-          <textarea
+          <Input
             id="description"
-            rows={4}
             placeholder="Describe the issue in detail"
             disabled={isDisabled}
             {...register("description", {
@@ -201,7 +202,27 @@ const IssueFormInput = ({
             //     ))}
             //   </select>
             // </EditableField>
-            <Select label="Priority" options={prioritiesData?.data} />
+
+            // <Select
+            //   label="Priority"
+            //   options={prioritiesData?.data}
+            //   {...register("priorityId", {
+            //     required: "Priority is required",
+            //   })}
+            // />
+            <Controller
+              name="priorityId"
+              control={control}
+              rules={{ required: "Priority is required" }}
+              render={({ field }) => (
+                <Select
+                  label="Priority"
+                  options={prioritiesData?.data}
+                  value={field.value} // controlled value
+                  onChange={field.onChange} // updates RHF
+                />
+              )}
+            />
           ) : (
             // <select
             //   disabled={isDisabled}
@@ -215,7 +236,19 @@ const IssueFormInput = ({
             //   ))}
             // </select>
 
-            <Select label="Priority" options={prioritiesData?.data} />
+            <Controller
+              name="priorityId"
+              control={control}
+              rules={{ required: "Priority is required" }}
+              render={({ field }) => (
+                <Select
+                  label="Priority"
+                  options={prioritiesData?.data}
+                  value={field.value} // controlled value
+                  onChange={field.onChange} // updates RHF
+                />
+              )}
+            />
           )}
           {errors.priorityId && (
             <p className="mt-1 text-sm text-red-600">

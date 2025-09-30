@@ -6,6 +6,8 @@
   --color-card-background: #242528;
   --color-modal-background-color: #2b2c2f;
   --color-dropdown-hover-background-color: #36373b;
+  --color-input-border: #7e8188;
+  --color-input-label: #a0a2a6;
 }
 
 :root {
