@@ -1,63 +1,94 @@
-// EditableField.tsx
-import {
-  useState,
-  ReactNode,
-  cloneElement,
-  isValidElement,
-  KeyboardEvent,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { InlineEditProps } from './InlineEdit.types';
 
-interface EditableFieldProps {
-  value: string | ReactNode;
-  children: ReactNode;
-  isDisabled?: boolean;
-  isEdit?: boolean;
-}
-
-export const EditableField = ({
+export default function InlineEdit<T extends string | number>({
   value,
-  children,
-  isDisabled,
-  isEdit,
-}: EditableFieldProps) => {
+  onSave,
+  onCancel,
+  renderDisplay,
+  renderEditor,
+  validate,
+  saveOnBlur = false,
+}: InlineEditProps<T>) {
   const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  if (isDisabled) return <span>{value || "—"}</span>;
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const handleBlur = () => {
-    if (isEdit) setIsEditing(false);
-    return;
+  const startEditing = () => {
+    setDraft(value);
+    setError(null);
+    setIsEditing(true);
   };
 
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      setIsEditing(false);
+  const cancel = useCallback(() => {
+    setDraft(value);
+    setIsEditing(false);
+    setError(null);
+    onCancel?.();
+  }, [value, onCancel]);
+
+  const save = useCallback(async () => {
+    const validationError = validate?.(draft) ?? null;
+    if (validationError) {
+      setError(validationError);
+      return;
     }
-  };
 
-  const editableChildren = isValidElement(children)
-    ? cloneElement(children as any, {
-        onBlur: handleBlur,
-        onKeyDown: handleKeyDown,
-        autoFocus: true,
-        // Ensure the input value reflects the current `value` prop
-        value,
-      })
-    : children;
+    setIsSaving(true);
+    try {
+      await onSave?.(draft);
+      setIsEditing(false);
+      setError(null);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [draft, validate, onSave]);
+
+  // handle keyboard: Enter = save, Escape = cancel
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  const cancelRef = useRef(cancel);
+  cancelRef.current = cancel;
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') cancelRef.current();
+      if (e.key === 'Enter') saveRef.current();
+    };
+
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isEditing]);
+
+  // handle click outside
+  useEffect(() => {
+    if (!isEditing || !saveOnBlur) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        saveRef.current();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isEditing, saveOnBlur]);
 
   return (
-    <div
-      onClick={() => !isEditing && setIsEditing(true)}
-      className="cursor-pointer"
-    >
-      {!isEdit ? (
-        children
-      ) : isEditing && isEdit ? (
-        editableChildren
+    <div ref={wrapperRef}>
+      {isEditing ? (
+        <div>
+          {renderEditor(draft, setDraft, save, cancel, isSaving)}
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
       ) : (
-        <span>{value || "—"}</span>
+        renderDisplay(value, startEditing)
       )}
     </div>
   );
-};
+}

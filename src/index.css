@@ -1,11 +1,23 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-body-background: #1f1f21;
   --color-column-background: #18191a;
   --color-card-background: #242528;
-  --color-modal-background-color: #2b2c2f;
-  --color-dropdown-hover-background-color: #36373b;
+  --color-modal-background: #2b2c2f;
+
+  --color-input-border: #7e8188;
+  --color-input-border-focus: #7c9cd0;
+  --color-input-label: #a0a2a6;
+  --color-input-placeholder: #96999e;
+  --color-input-text: #bfc1c4;
+  --color-input-background: #242529;
+
+  --color-dropdown-hover-background: #36373b;
+  --color-dropdown-selected: #1c2b42;
+  --color-dropdown-selected-hover: #123263;
+
+  --color-danger: #fd9891;
 }
 
 :root {

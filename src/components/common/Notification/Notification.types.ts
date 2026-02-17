@@ -1,10 +1,16 @@
-export type NotificationTypeName =
-  | "system"
-  | "success"
-  | "error"
-  | "criticalError"
-  | "info"
-  | "warning";
+import type { Notification } from '../../../types';
+
+export type NotificationType =
+  | 'system'
+  | 'success'
+  | 'error'
+  | 'criticalError'
+  | 'info'
+  | 'warning';
+
+export interface NotificationComponentProps {
+  notification: Notification;
+}
 
 export interface NotificationProps {
   // Accessible name for the alert:
@@ -22,21 +28,9 @@ export interface NotificationProps {
     btnOnClick: () => void;
   };
   // Type of notification (controls styling)
-  type: NotificationTypeName;
-
+  type: NotificationType;
   // Full width of container
   fullWidth?: boolean;
   hasTimeout?: boolean;
   noIcon?: boolean;
-}
-
-export interface NotificationsProps {
-  // Set whether notifications should be displayed as toasts/popover:
-  toaster?: boolean;
-
-  // Set whether the notifications container should be positioned relative to the viewport (rather than its DOM position). Use only with toaster=true.
-  onViewport?: boolean;
-
-  // If we want the page to react to notifications
-  isRelative?: boolean;
 }

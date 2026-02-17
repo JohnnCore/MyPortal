@@ -1,10 +1,17 @@
-import { HTMLAttributes, ReactNode } from "react";
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 
-export type ButtonSize = "small" | "large" | "x-small"; // Small, Medium, Large, or Special Design
-export type ButtonVariant = "primary" | "secondary" | "link" | "plain";
+export type ButtonSize = 'x-small' | 'small' | 'medium' | 'large'; // X-Small, Small, Medium, Large
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'link'
+  | 'plain'
+  | 'danger'
+  | 'info'
+  | 'ghost';
 
-export interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
-    size?: ButtonSize  // Small, Medium, Large, or Special Design
-    children?: ReactNode;
-    variant?: ButtonVariant;
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  size?: ButtonSize; // Small, Medium, Large, or Special Design
+  children?: ReactNode;
+  variant?: ButtonVariant;
 }

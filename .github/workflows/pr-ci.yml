@@ -1,0 +1,31 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches: [development]
+
+jobs:
+  lint-and-format:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prettier check
+        run: npm run format:check
+
+      - name: Typescript check
+        run: npm run typecheck
+
+      - name: ESLint check
+        run: npm run lint

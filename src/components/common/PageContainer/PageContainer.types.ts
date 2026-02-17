@@ -9,6 +9,9 @@ export type PageContainerProps = {
   /** bg is grey only on large screen sizes? */
   bgGreyLg?: boolean;
 
+  /** Show the Navbar (default: true) */
+  showNavbar?: boolean;
+
   /** All page content */
   children: ReactNode;
 };
