@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { ColumnDef } from '@tanstack/react-table';
 import { useGetIssuesInfiniteQuery } from '../../../redux/api/Issues/issuesApiSlice';
@@ -18,6 +18,7 @@ const LIMIT = 20;
 export default function IssuesList({ projectId, filters }: Props) {
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
 
   const projectIdNumber = useMemo(() => {
     if (!projectId) return undefined;
@@ -46,19 +47,37 @@ export default function IssuesList({ projectId, filters }: Props) {
   const hasMore = data?.pagination?.hasMore ?? false;
   const nextCursor = data?.pagination?.nextCursor ?? null;
 
+  // Combined fetching state includes both RTK Query fetching and manual next page fetching
+  const isCurrentlyFetching = isFetching || isFetchingNextPage;
+
+  // Reset fetching state when query params change (e.g., filter change)
+  useEffect(() => {
+    setIsFetchingNextPage(false);
+  }, [queryParams]);
+
   // Fetch next page
   const fetchNextPage = useCallback(() => {
-    if (!hasMore || isFetching || !nextCursor || !projectIdNumber) {
+    // Prevent duplicate requests
+    if (!hasMore || isCurrentlyFetching || !nextCursor || !projectIdNumber) {
       return;
     }
+
+    setIsFetchingNextPage(true);
 
     dispatch(
       issuesApiSlice.endpoints.getIssuesInfinite.initiate(
         { ...queryParams, cursor: nextCursor },
         { subscribe: false, forceRefetch: true }
       )
-    );
-  }, [dispatch, hasMore, isFetching, nextCursor, queryParams, projectIdNumber]);
+    )
+      .unwrap()
+      .then(() => {
+        setIsFetchingNextPage(false);
+      })
+      .catch(() => {
+        setIsFetchingNextPage(false);
+      });
+  }, [dispatch, hasMore, isCurrentlyFetching, nextCursor, queryParams, projectIdNumber]);
 
   // Define table columns
   const columns = useMemo<ColumnDef<IssueWithRelations>[]>(
@@ -214,7 +233,7 @@ export default function IssuesList({ projectId, filters }: Props) {
       data={issues}
       columns={columns}
       isLoading={isLoading}
-      isFetching={isFetching}
+      isFetching={isCurrentlyFetching}
       hasMore={hasMore}
       onLoadMore={fetchNextPage}
       emptyMessage="No issues to show."

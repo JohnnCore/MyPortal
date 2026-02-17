@@ -27,6 +27,7 @@ export default function VirtualizedTable<T>({
   estimatedRowHeight = ESTIMATED_ROW_HEIGHT,
 }: VirtualizedTableProps<T>) {
   const parentRef = useRef<HTMLDivElement>(null);
+  const lastFetchedIndex = useRef<number>(-1);
 
   const table = useReactTable({
     data,
@@ -85,10 +86,19 @@ export default function VirtualizedTable<T>({
     // Trigger fetch when scrolled past 70% and within 3 items of the end
     const shouldFetch = scrollPercentage > 0.7 && lastItem.index >= rows.length - 3;
 
-    if (shouldFetch) {
+    // Prevent duplicate fetches for the same index
+    if (shouldFetch && lastItem.index !== lastFetchedIndex.current) {
+      lastFetchedIndex.current = lastItem.index;
       onLoadMore();
     }
   }, [virtualItems, rows.length, hasMore, isFetching, onLoadMore]);
+
+  // Reset lastFetchedIndex when data length changes (new data loaded or filters changed)
+  useEffect(() => {
+    if (rows.length > 0 && lastFetchedIndex.current >= rows.length) {
+      lastFetchedIndex.current = -1;
+    }
+  }, [rows.length]);
 
   if (isLoading) {
     return (

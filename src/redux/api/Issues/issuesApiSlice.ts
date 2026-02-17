@@ -91,7 +91,8 @@ export const issuesApiSlice = apiSlice.injectEndpoints({
       // Use serializeQueryArgs to exclude cursor from the cache key.
       // This way all pages for the same projectId + filters share the same cache entry.
       serializeQueryArgs: ({ queryArgs }) => {
-        const { ...rest } = queryArgs;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { cursor, ...rest } = queryArgs;
         return rest;
       },
       // Transform response to normalize both offset and cursor pagination responses
@@ -161,8 +162,10 @@ export const issuesApiSlice = apiSlice.injectEndpoints({
       forceRefetch: ({ currentArg, previousArg }) => {
         if (!previousArg || !currentArg) return false;
         // Refetch if anything except cursor changed
-        const { ...currRest } = currentArg;
-        const { ...prevRest } = previousArg;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { cursor: _c1, ...currRest } = currentArg;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { cursor: _c2, ...prevRest } = previousArg;
         return JSON.stringify(currRest) !== JSON.stringify(prevRest);
       },
       providesTags: (result) => {
