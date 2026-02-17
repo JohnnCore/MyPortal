@@ -12,7 +12,7 @@ const Spinner = () => {
         <div className="h-[10px] w-[10px] bg-primary-dark-green rounded-full animate-loading-dot [animation-delay:0.2s]" />
         <div className="h-[10px] w-[10px] bg-success-600 rounded-full animate-loading-dot [animation-delay:0.4s]" />
         <div className="h-[10px] w-[10px] bg-success-400 rounded-full animate-loading-dot [animation-delay:0.6s]" />
-        <p>Loading</p>
+        <p className="text-black">Loading</p>
       </div>
     </div>
   );

@@ -1,41 +1,64 @@
-import { lazy } from "react";
-import { Routes, Route, useLocation, matchPath } from "react-router";
+import { lazy, Suspense } from 'react';
 
-import { BOARD, ISSUE_DETAILS, modalPaths, ROOT } from "./paths";
+import { Route, Routes } from 'react-router';
 
-const MyFeed = lazy(() => import("../components/my-feed/MyFeed/MyFeed"));
-const BoardPage = lazy(() => import("../pages/Board/BoardPage"));
-const IssueDetail = lazy(
-  () => import("../components/board/IssueDetail/IssueDetail")
-);
+import LoginPage from '../pages/Login/LoginPage';
+import RegisterPage from '../pages/Register/RegisterPage';
+import { BOARD, LOGIN, REGISTER, ROOT, INVITE_ACCEPT } from './paths';
+import { PrivateRoute } from '../components/common/PrivateRoute/PrivateRoute';
+import Projects from '../components/project/Projects/Projects';
+import ErrorBoundary from '../components/common/error-boundary/ErrorBoundary/ErrorBoundary';
+import Spinner from '../components/common/Spinner/Spinner';
+
+const BoardPage = lazy(() => import('../pages/Board/BoardPage'));
+const AcceptInvitePage = lazy(() => import('../pages/Invites/AcceptInvitePage'));
 
 export const AppRoutes = () => {
-  const location = useLocation();
-
-  // Check if current location matches any modal path
-  const modalPath = Object.keys(modalPaths).find((path) =>
-    matchPath(path, location.pathname)
-  );
-
-  // Build background location for modal overlay
-  const backgroundLocation = modalPath
-    ? { ...location, pathname: modalPaths[modalPath] }
-    : null;
-
   return (
-    <>
-      {/* Main routes */}
-      <Routes location={backgroundLocation || location}>
-        <Route path={ROOT} element={<MyFeed />} />
-        <Route path={BOARD} element={<BoardPage />} />
-      </Routes>
+    <Routes>
+      <Route
+        path={BOARD}
+        element={
+          <PrivateRoute>
+            <Suspense fallback={<Spinner />}>
+              <ErrorBoundary>
+                <BoardPage />
+              </ErrorBoundary>
+            </Suspense>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={`${BOARD}/:tab`}
+        element={
+          <PrivateRoute>
+            <Suspense fallback={<Spinner />}>
+              <ErrorBoundary>
+                <BoardPage />
+              </ErrorBoundary>
+            </Suspense>
+          </PrivateRoute>
+        }
+      />
 
-      {/* Modal overlay route */}
-      {modalPath && (
-        <Routes>
-          <Route path={ISSUE_DETAILS} element={<IssueDetail />} />
-        </Routes>
-      )}
-    </>
+      <Route
+        path={INVITE_ACCEPT}
+        element={
+          <Suspense fallback={<Spinner />}>
+            <ErrorBoundary>
+              <AcceptInvitePage />
+            </ErrorBoundary>
+          </Suspense>
+        }
+      />
+
+      <Route path={ROOT} element={<Projects />} />
+      {/* Public Routes */}
+      <Route path={LOGIN} element={<LoginPage />} />
+
+      <Route path={REGISTER} element={<RegisterPage />} />
+
+      <Route path="*" element={<div>404 Not Found</div>} />
+    </Routes>
   );
 };

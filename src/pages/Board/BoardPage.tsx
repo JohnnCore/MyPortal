@@ -1,254 +1,202 @@
-import React, { useCallback, useState, lazy, Suspense, useRef } from "react";
+// pages/BoardPage.tsx
+import { lazy, Suspense, useCallback, useRef, useState } from 'react';
+import { useAppDispatch } from '../../hooks/reduxHooks';
+import {
+  addNotification,
+  createErrorNotification,
+} from '../../redux/notifications/notificationsSlice';
 
-import Modal from "../../components/common/Modal/Modal";
-// import IssueForm from "../../components/board/IssueForm/IssueForm";
-import Board from "../../components/board/Board/Board";
-import { useAppDispatch } from "../../hooks/reduxHooks";
-import { IssueFormData } from "../../components/board/IssueForm/IssueForm.types";
-import { openDiscardModal } from "../../redux/modal/modalSlice";
-import PageContainer from "../../components/common/PageContainer/PageContainer";
-import Header from "../../components/board/Board/Header/Header";
-import { Issue, IssueResponse } from "../../types/board";
-import { useIssues } from "../../hooks/Issues/useIssues";
-import { useCreateIssueMutation } from "../../redux/api/Issues/issuesApiSlice";
-import { useMetaStatuses } from "../../hooks/Meta/useMeta";
+import { useParams, useSearchParams } from 'react-router';
 
-interface IssueFormRef {
-  triggerCancel: (e?: React.MouseEvent) => void;
-}
+import { parseId } from '../../utils/parseId';
+import Modal from '../../components/common/Modal/Modal';
+import { useIssueBoard } from '../../hooks/useIssuesBoard';
+import Header from '../../components/board/Board/Header/Header';
+import IssueBoardHeader from '../../components/issue-board/IssueBoardHeader/IssueBoardHeader';
+import IssueBoard from '../../components/issue-board/IssuesBoard/IssuesBoard';
+import PageContainer from '../../components/common/PageContainer/PageContainer';
+import Spinner from '../../components/common/Spinner/Spinner';
+
+import { useCreateProjectInvite } from '../../hooks/ProjectInvites/useProjectInvite';
+import type { FormRef } from '../../types/ui';
+import { useProject } from '../../hooks/Projects/useProject';
+
+// Lazy load modals for better initial bundle size
+const IssueForm = lazy(() => import('./../../components/board/IssueForm/IssueForm'));
+const IssueDetail = lazy(() => import('../../components/board/IssueDetail/IssueDetail'));
 
 export default function BoardPage() {
-  const { data: issues, isError, isFetching, error, isSuccess } = useIssues();
-  const [createIssue, { isError: createError, isLoading: loadingError }] =
-    useCreateIssueMutation();
-
-  console.log(issues);
-
-  const { data: issuesStatues } = useMetaStatuses();
-
-  // console.log(issuesStatues);
-
-  const [existingIssue, setExistingIssue] = useState<IssueResponse | null>(
-    null
-  );
-  const [showFormModal, setShowFormModal] = useState<boolean>(false);
-
-  const issueFormRef = useRef<IssueFormRef>(null);
-
   const dispatch = useAppDispatch();
-  // const navigate = useNavigate();
 
-  const IssueForm = lazy(
-    () => import("./../../components/board/IssueForm/IssueForm")
-  );
+  const { projectId } = useParams();
+  const [searchParams] = useSearchParams();
 
-  const preloadIssueForm = () => {
-    import("./../../components/board/IssueForm/IssueForm");
+  const projectIdNumber = parseId(projectId);
+
+  const selectedIssueId = searchParams.get('selectedIssue');
+
+  const issueFormRef = useRef<FormRef>(null);
+
+  // State for invite link
+  const [inviteLink, setInviteLink] = useState('');
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
+
+  // Determine current tab based on the URL
+  const { tab } = useParams();
+  const currentTab = tab || 'board';
+
+  // All business logic extracted to custom hook
+  // Skip fetching issues when on list tab (IssuesList has its own infinite query)
+  const {
+    issues,
+    statuses,
+    priorities,
+    types,
+    projectMembers,
+    isLoading,
+    isError,
+    error,
+    showFormModal,
+    existingIssue,
+    handleCreateClick,
+    handleFormSubmit,
+    handleCreateCard,
+    handleFormCancel,
+    handleReorderIssue,
+    handleRenameStatus,
+    handleReorderStatus,
+    preloadForm,
+    filters,
+    setFilter,
+    clearFilters,
+  } = useIssueBoard({
+    projectId: projectIdNumber,
+    skipIssuesFetch: currentTab === 'list',
+  });
+
+  // Handle modal close with form confirmation
+  const handleCloseModalWithConfirmation = () => {
+    issueFormRef.current?.triggerCancel();
   };
 
-  // const submitIssue = useCallback(
-  //   async (values: IssueFormValues) => {
-  //     console.log("submitting issue...");
+  const { handleCreateInvite: createProjectInvite } = useCreateProjectInvite({
+    projectId: projectIdNumber,
+  });
 
-  //     return new Promise<{
-  //       data: IssueData;
-  //       success: boolean;
-  //       message: string;
-  //     }>((resolve, reject) => {
-  //       setTimeout(() => {
-  //         if (Math.random() > 0.1) {
-  //           const newIssue: IssueData = {
-  //             id: existingIssue?.id || 0,
-  //             title: values.title,
-  //             description: values.description,
-  //             priority: values.priority,
-  //             type: values.type,
-  //             assignee: values.assignee,
-  //             tags: values.tags,
-  //             status: values.status,
-  //             createdAt: existingIssue?.createdAt || new Date().toISOString(),
-  //             updatedAt: new Date().toISOString(),
-  //           };
+  const { data: projectData } = useProject({ id: projectIdNumber });
 
-  //           resolve({
-  //             data: newIssue,
-  //             success: true,
-  //             message: existingIssue
-  //               ? "Issue updated successfully"
-  //               : "Issue created successfully",
-  //           });
-  //         } else {
-  //           reject(new Error("Failed to submit issue. Please try again."));
-  //         }
-  //       }, 2000); // Reduced timeout for better UX
-  //     });
-  //   },
-  //   [existingIssue]
-  // );
+  const handleCreateInvite = useCallback(async () => {
+    if (!projectIdNumber) return;
 
-  // const handleFormSubmit = useCallback(
-  //   async (values: IssueFormValues): Promise<void> => {
-  //     setError(null);
-  //     setSuccessMessage(null);
-  //     setIsLoading(true);
+    // If we already have an invite link, don't generate a new one
+    if (inviteLink) return;
 
-  //     try {
-  //       const response = await submitIssue(values);
+    setIsGeneratingLink(true);
 
-  //       if (response.success) {
-  //         setExistingIssue(response.data);
-  //         setSuccessMessage(response.message);
-  //         setShowFormModal(false);
-
-  //         setTimeout(() => {
-  //           setSuccessMessage(null);
-  //         }, 3000);
-  //       }
-  //     } catch (err: any) {
-  //       setError(err.message || "An unexpected error occurred");
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   },
-  //   [submitIssue]
-  // );
-
-  const handleFormSubmit = useCallback(
-    async (values: Issue): Promise<void> => {
-      try {
-        const response = await createIssue(values);
-        console.log(response);
-
-        if (response.data) {
-          console.log("Issue created:", response);
-          setShowFormModal(false);
-        }
-      } catch (err: any) {
-        console.log("Error creating issue:", err);
-      } finally {
-        console.log("Closing modal...");
+    try {
+      const res = await createProjectInvite({
+        email: 's',
+        projectId: projectIdNumber,
+      });
+      const token = res?.data?.token;
+      if (!token) {
+        throw new Error('Invite token not returned');
       }
-    },
-    [createIssue]
-  );
 
-  const handleFormCancel = useCallback(() => {
-    setShowFormModal(false);
-    setExistingIssue(null);
-  }, []);
+      const invitePath = `/invite/${token}`;
+      const inviteUrl = `${window.location.origin}${invitePath}`;
 
-  const handleCreateClick = useCallback(() => {
-    setExistingIssue(null);
-    setShowFormModal(true);
-  }, []);
+      setInviteLink(inviteUrl);
+    } catch (err) {
+      dispatch(addNotification(createErrorNotification('Failed to create invite.')));
+      console.error('Failed to create invite:', err);
+    } finally {
+      setIsGeneratingLink(false);
+    }
+  }, [createProjectInvite, dispatch, projectIdNumber, inviteLink]);
 
-  // const handleCloseModal = useCallback(() => {
-  //   setShowFormModal(false);
-  //   setError(null);
-  //   setSuccessMessage(null);
-  // }, []);
+  if (!projectIdNumber) {
+    return (
+      <PageContainer>
+        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+          Project ID is missing or invalid in the URL.
+        </div>
+      </PageContainer>
+    );
+  }
 
-  // const handleCloseModalWithConfirmation = useCallback(() => {
-  //   // If editing an existing issue, show confirmation
-  //   if (existingIssue) {
-  //     dispatch(
-  //       openDiscardModal({
-  //         title: "Discard Changes",
-  //         children: (
-  //           <div className="text-gray-600">
-  //             <p>Are you sure you want to close without saving your changes?</p>
-  //             <p className="mt-2 text-sm text-gray-500">
-  //               All unsaved data will be permanently lost.
-  //             </p>
-  //           </div>
-  //         ),
-  //         onContinueHandler: () => {
-  //           handleFormCancel();
-  //         },
-  //         onCloseLabel: "Keep Editing",
-  //         onContinueLabel: "Discard Changes",
-  //       })
-  //     );
-  //   }
-  //   handleFormCancel();
-  // }, [dispatch, handleFormCancel, existingIssue]);
-
-  const handleCloseModalWithConfirmation = useCallback(() => {
-    issueFormRef.current?.triggerCancel();
-  }, [issueFormRef]);
-
-  const handleIssueClick = useCallback((clickedIssue: IssueResponse) => {
-    // Find the full issue data from your issues array
-
-    // if (clickedIssue) {
-    //   // Convert Issue to IssueData format if needed
-    //   const issueData: IssueResponse = {
-    //     id: clickedIssue.id,
-    //     title: clickedIssue.title, // Assuming summary maps to title
-    //     description: clickedIssue.description,
-    //     priority: clickedIssue.priority || "Low", // Provide default if needed
-    //     type: clickedIssue.type,
-    //     assignee: clickedIssue.assignee, // Provide default if needed
-    //     tags: clickedIssue.tags || [], // Provide default if needed
-    //     status: clickedIssue.status,
-    //     createdAt: clickedIssue.createdAt || new Date().toISOString(),
-    //     updatedAt: clickedIssue.updatedAt || new Date().toISOString(),
-    //   };
-
-    //   setExistingIssue(issueData);
-    //   setShowFormModal(true);
-    // }
-
-    setExistingIssue(clickedIssue);
-    setShowFormModal(true);
-  }, []);
+  // Check if we have the required data
+  const hasData = issues && statuses && types && priorities;
 
   return (
     <PageContainer>
-      <div className="">
-        <Header onCreateIssue={handleCreateClick} onHover={preloadIssueForm} />
-        {/* Success/Error Messages */}
-        {isSuccess && (
-          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
-            Saved
-          </div>
-        )}
-        {isError && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-            {/* {error} */}
-          </div>
-        )}
+      <Header
+        onCreateIssue={handleCreateClick}
+        onHover={preloadForm}
+        onCreateInvite={handleCreateInvite}
+        title={projectData?.data?.name}
+        members={projectMembers}
+        inviteLink={inviteLink}
+        isGeneratingLink={isGeneratingLink}
+      />
 
-        {isFetching && (
-          <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-md">
-            Loading...
-          </div>
-        )}
+      {hasData && <IssueBoardHeader projectId={projectIdNumber} />}
 
-        <Board
-          issues={issues?.data}
-          issuesStatues={issuesStatues?.data}
-          onIssueClick={handleIssueClick}
+      {isError && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+          {error && 'message' in error ? error.message : 'Failed to load issues'}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-md">
+          Loading issues...
+        </div>
+      )}
+
+      {hasData && (
+        <IssueBoard
+          issues={issues}
+          statuses={statuses}
+          priorities={priorities}
+          types={types}
+          projectMembers={projectMembers}
+          projectId={projectIdNumber}
+          currentTab={currentTab}
+          isLoading={isLoading}
+          onReorder={handleReorderIssue}
+          onReorderStatus={handleReorderStatus}
+          onRenameStatus={handleRenameStatus}
+          onCreateCard={handleCreateCard}
+          filters={filters}
+          onFilterChange={setFilter}
+          onClearFilters={clearFilters}
         />
+      )}
 
-        {showFormModal && (
-          <Suspense fallback={<div>Loading...</div>}>
-            <Modal
-              isOpen={showFormModal}
-              onClose={handleCloseModalWithConfirmation}
-              title={existingIssue ? "Edit Issue" : "Create New Issue"}
-              size="large"
-            >
-              <IssueForm
-                existingIssue={existingIssue}
-                onFormSubmit={handleFormSubmit}
-                onCancel={handleFormCancel}
-                ref={issueFormRef}
-              />
-            </Modal>
-          </Suspense>
-        )}
-      </div>
+      {showFormModal && (
+        <Suspense fallback={<div>Loading form...</div>}>
+          <Modal
+            isOpen={showFormModal}
+            onClose={handleCloseModalWithConfirmation}
+            title={existingIssue ? 'Edit Issue' : 'Create New Issue'}
+            size="large"
+          >
+            <IssueForm
+              existingIssue={existingIssue}
+              projectId={projectIdNumber}
+              onFormSubmit={handleFormSubmit}
+              onCancel={handleFormCancel}
+              ref={issueFormRef}
+            />
+          </Modal>
+        </Suspense>
+      )}
+      {selectedIssueId && (
+        <Suspense fallback={<Spinner />}>
+          <IssueDetail />
+        </Suspense>
+      )}
     </PageContainer>
   );
 }

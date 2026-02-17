@@ -1,0 +1,45 @@
+/**
+ * Type-safe Constants
+ */
+
+export const VALIDATION_CONSTANTS = {
+  PASSWORD_MIN_LENGTH: 8,
+  PASSWORD_MAX_LENGTH: 128,
+  USERNAME_MIN_LENGTH: 3,
+  USERNAME_MAX_LENGTH: 50,
+  EMAIL_MAX_LENGTH: 255,
+  ISSUE_TITLE_MAX_LENGTH: 255,
+  ISSUE_DESCRIPTION_MAX_LENGTH: 10000,
+  ISSUE_KEY_MAX_LENGTH: 20,
+  PROJECT_NAME_MAX_LENGTH: 100,
+  PROJECT_KEY_MIN_LENGTH: 2,
+  PROJECT_KEY_MAX_LENGTH: 10,
+  TAG_NAME_MAX_LENGTH: 50,
+  COMMENT_MAX_LENGTH: 5000,
+} as const;
+
+export const PAGINATION_CONSTANTS = {
+  DEFAULT_LIMIT: 50,
+  MAX_LIMIT: 100,
+  ABSOLUTE_MAX_LIMIT: 500,
+  DEFAULT_PAGE: 1,
+} as const;
+
+export const NOTIFICATION_TIMEOUTS = {
+  success: 3000,
+  error: 5000,
+  warning: 4000,
+  info: 3000,
+} as const;
+
+export const ErrorCode = {
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  INTERNAL_SERVER_ERROR: 500,
+} as const;
+
+export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];
