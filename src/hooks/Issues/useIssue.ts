@@ -110,7 +110,7 @@ export const useReorderIssue = ({ projectId }: ReorderParams) => {
 
       // Wait for previous request to finish
       if (pendingRequestRef.current) {
-        await pendingRequestRef.current.catch(() => { });
+        await pendingRequestRef.current.catch(() => {});
       }
 
       try {
